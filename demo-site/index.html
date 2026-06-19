@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CausalFunnel Demo Store</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #4f46e5;
+        --accent-dark: #4338ca;
+        --border: #e2e8f0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(8px);
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: 1.125rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .hero {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 4rem 2rem 2rem;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.1;
+        margin: 0 0 1rem;
+      }
+
+      .hero p {
+        color: var(--muted);
+        margin: 0 0 1.5rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      button,
+      .btn {
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      button:hover,
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-dark);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .hero-card {
+        background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+        border: 1px solid var(--border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+        min-height: 280px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      }
+
+      .section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .section h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.75rem;
+      }
+
+      .section p.lead {
+        margin: 0 0 1.5rem;
+        color: var(--muted);
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .card h3 {
+        margin: 0 0 0.5rem;
+      }
+
+      .card p {
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+      }
+
+      .product {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      }
+
+      .product-image {
+        height: 160px;
+        background: linear-gradient(135deg, #c7d2fe, #fbcfe8);
+      }
+
+      .product-body {
+        padding: 1rem;
+      }
+
+      .price {
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding: 2rem;
+        text-align: center;
+        color: var(--muted);
+        border-top: 1px solid var(--border);
+      }
+
+      @media (max-width: 768px) {
+        .hero {
+          grid-template-columns: 1fr;
+          padding-top: 2rem;
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="brand">CausalFunnel Demo</div>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#products">Products</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <button class="btn-primary" type="button">Get Started</button>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Understand every click on your site</h1>
+        <p>
+          This demo page embeds the analytics tracker script. Click around to generate
+          page views and click events for the dashboard.
+        </p>
+        <div class="actions">
+          <button class="btn-primary" type="button">Start free trial</button>
+          <button class="btn-secondary" type="button">Watch demo</button>
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3>Live session tracking</h3>
+        <p>Each visit gets a unique session ID stored in localStorage.</p>
+        <button class="btn-secondary" type="button">Explore analytics</button>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <h2>Why teams choose us</h2>
+      <p class="lead">Click any card or button to populate heatmap and session data.</p>
+      <div class="cards">
+        <article class="card">
+          <h3>Session replay</h3>
+          <p>Reconstruct user journeys from tracked events.</p>
+          <button class="btn-secondary" type="button">Learn more</button>
+        </article>
+        <article class="card">
+          <h3>Click heatmaps</h3>
+          <p>See where users engage on each page.</p>
+          <button class="btn-secondary" type="button">View heatmap</button>
+        </article>
+        <article class="card">
+          <h3>Real-time insights</h3>
+          <p>Events stream directly to your analytics API.</p>
+          <button class="btn-secondary" type="button">See live data</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="products" class="section">
+      <h2>Featured products</h2>
+      <p class="lead">A product grid gives plenty of clickable surface area.</p>
+      <div class="products">
+        <article class="product">
+          <div class="product-image"></div>
+          <div class="product-body">
+            <h3>Insight Starter</h3>
+            <p>Essential analytics for growing teams.</p>
+            <p class="price">$29/mo</p>
+            <button class="btn-primary" type="button">Add to cart</button>
+          </div>
+        </article>
+        <article class="product">
+          <div class="product-image"></div>
+          <div class="product-body">
+            <h3>Growth Pro</h3>
+            <p>Advanced funnels and heatmaps.</p>
+            <p class="price">$79/mo</p>
+            <button class="btn-primary" type="button">Add to cart</button>
+          </div>
+        </article>
+        <article class="product">
+          <div class="product-image"></div>
+          <div class="product-body">
+            <h3>Enterprise</h3>
+            <p>Custom integrations and SLAs.</p>
+            <p class="price">Contact us</p>
+            <button class="btn-primary" type="button">Talk to sales</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="pricing" class="section">
+      <h2>Simple pricing</h2>
+      <p class="lead">Transparent plans with no hidden fees.</p>
+      <div class="cards">
+        <article class="card">
+          <h3>Free</h3>
+          <p>Up to 1,000 events / month</p>
+          <button class="btn-secondary" type="button">Choose Free</button>
+        </article>
+        <article class="card">
+          <h3>Pro</h3>
+          <p>Unlimited events and heatmaps</p>
+          <button class="btn-primary" type="button">Choose Pro</button>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <p>CausalFunnel Demo Site — embed <code>tracker/tracker.js</code> on any page to start tracking.</p>
+    </footer>
+
+    <script src="../tracker/tracker.js"></script>
+  </body>
+</html>
