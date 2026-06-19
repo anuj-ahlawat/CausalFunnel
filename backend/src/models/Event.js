@@ -15,12 +15,22 @@ const eventSchema = new mongoose.Schema(
     pageUrl: {
       type: String,
       required: true,
+    },
+    pageUrlNormalized: {
+      type: String,
+      required: true,
       index: true,
     },
     timestamp: {
       type: Date,
       required: true,
       index: true,
+    },
+    pageX: {
+      type: Number,
+    },
+    pageY: {
+      type: Number,
     },
     clickX: {
       type: Number,
@@ -34,6 +44,14 @@ const eventSchema = new mongoose.Schema(
         return this.eventType === 'click';
       },
     },
+    normalizedX: {
+      type: Number,
+      min: 0,
+    },
+    normalizedY: {
+      type: Number,
+      min: 0,
+    },
     viewportWidth: {
       type: Number,
     },
@@ -44,6 +62,12 @@ const eventSchema = new mongoose.Schema(
       type: Number,
     },
     pageHeight: {
+      type: Number,
+    },
+    scrollX: {
+      type: Number,
+    },
+    scrollY: {
       type: Number,
     },
   },

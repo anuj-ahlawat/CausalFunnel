@@ -1,7 +1,23 @@
 import { formatTimestamp } from '../utils/format';
+import { debugLog } from '../utils/coordinates';
 
 function EventItem({ event }) {
   const isClick = event.eventType === 'click';
+
+  if (isClick) {
+    debugLog('frontend:session-click', {
+      pageX: event.pageX ?? event.clickX,
+      pageY: event.pageY ?? event.clickY,
+      normalizedX: event.normalizedX,
+      normalizedY: event.normalizedY,
+      displayX: event.displayX,
+      displayY: event.displayY,
+      pageWidth: event.pageWidth,
+      pageHeight: event.pageHeight,
+      scrollX: event.scrollX,
+      scrollY: event.scrollY,
+    });
+  }
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -21,9 +37,44 @@ function EventItem({ event }) {
       <p className="mt-3 break-all text-sm text-slate-600">{event.pageUrl}</p>
 
       {isClick && (
-        <p className="mt-2 font-mono text-sm text-slate-800">
-          Position: ({event.clickX}, {event.clickY})
-        </p>
+        <dl className="mt-3 space-y-1 font-mono text-xs text-slate-700">
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">pageX / pageY</dt>
+            <dd>
+              ({event.pageX ?? event.clickX}, {event.pageY ?? event.clickY})
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">normalized</dt>
+            <dd>
+              ({event.normalizedX?.toFixed(4)}, {event.normalizedY?.toFixed(4)})
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">display</dt>
+            <dd>
+              ({Math.round(event.displayX ?? 0)}, {Math.round(event.displayY ?? 0)})
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">page size</dt>
+            <dd>
+              {event.pageWidth}×{event.pageHeight}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">scroll</dt>
+            <dd>
+              ({event.scrollX ?? 0}, {event.scrollY ?? 0})
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-slate-500">viewport</dt>
+            <dd>
+              {event.viewportWidth}×{event.viewportHeight}
+            </dd>
+          </div>
+        </dl>
       )}
     </div>
   );

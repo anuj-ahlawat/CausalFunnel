@@ -1,10 +1,9 @@
 import axios from 'axios';
+import { debugLog, normalizeHeatmapResponse } from '../utils/coordinates';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
 });
 
@@ -12,50 +11,32 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const message =
-      error.response?.data?.message ||
-      error.message ||
-      'An unexpected error occurred';
-
+      error.response?.data?.message || error.message || 'An unexpected error occurred';
     return Promise.reject(new Error(message));
   }
 );
 
 export const fetchSessions = async () => {
-  try {
-    const { data } = await api.get('/sessions');
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.get('/sessions');
+  return data;
 };
 
 export const fetchSessionEvents = async (sessionId) => {
-  try {
-    const { data } = await api.get(`/sessions/${sessionId}`);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.get(`/sessions/${sessionId}`);
+  debugLog('frontend:session-events', data);
+  return data;
 };
 
 export const fetchHeatmapData = async (pageUrl) => {
-  try {
-    const { data } = await api.get('/heatmap', {
-      params: { url: pageUrl },
-    });
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.get('/heatmap', { params: { url: pageUrl } });
+  const normalized = normalizeHeatmapResponse(data, pageUrl);
+  debugLog('frontend:heatmap', normalized);
+  return normalized;
 };
 
 export const fetchPages = async () => {
-  try {
-    const { data } = await api.get('/pages');
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await api.get('/pages');
+  return data;
 };
 
 export default api;

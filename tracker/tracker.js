@@ -3,31 +3,108 @@
 
   const API_URL = 'http://localhost:5001/api/events';
   const SESSION_STORAGE_KEY = 'analytics_session_id';
+  const DEBUG = true;
 
+  function log(stage, payload) {
+    if (DEBUG) {
+      console.log('[Analytics:tracker]', stage, payload);
+    }
+  }
+
+  function normalizePageUrl(url) {
+    try {
+      const parsed = new URL(url);
+      parsed.hash = '';
+      if (parsed.pathname.length > 1 && parsed.pathname.endsWith('/')) {
+        parsed.pathname = parsed.pathname.slice(0, -1);
+      }
+      return parsed.toString();
+    } catch {
+      let base = url;
+      const hashIndex = url.indexOf('#');
+      if (hashIndex !== -1) base = url.slice(0, hashIndex);
+      if (base.length > 1 && base.endsWith('/')) base = base.slice(0, -1);
+      return base;
+    }
+  }
+
+  /**
+   * Document scroll dimensions — the coordinate space for pageX/pageY.
+   * Must NOT use viewport (innerWidth/innerHeight) here.
+   */
   function getPageMetrics() {
     const docEl = document.documentElement;
     const body = document.body;
 
-    const pageWidth = Math.max(
-      docEl?.scrollWidth || 0,
-      docEl?.offsetWidth || 0,
-      body?.scrollWidth || 0,
-      body?.offsetWidth || 0
-    );
-
-    const pageHeight = Math.max(
-      docEl?.scrollHeight || 0,
-      docEl?.offsetHeight || 0,
-      body?.scrollHeight || 0,
-      body?.offsetHeight || 0
-    );
+    const pageWidth = Math.max(docEl.scrollWidth, body?.scrollWidth || 0, 1);
+    const pageHeight = Math.max(docEl.scrollHeight, body?.scrollHeight || 0, 1);
 
     return {
-      viewportWidth: window.innerWidth || null,
-      viewportHeight: window.innerHeight || null,
-      pageWidth: pageWidth || null,
-      pageHeight: pageHeight || null,
+      viewportWidth: window.innerWidth || 0,
+      viewportHeight: window.innerHeight || 0,
+      pageWidth,
+      pageHeight,
     };
+  }
+
+  function getScrollOffset() {
+    return {
+      scrollX: Math.round(window.pageXOffset ?? document.documentElement.scrollLeft ?? 0),
+      scrollY: Math.round(window.pageYOffset ?? document.documentElement.scrollTop ?? 0),
+    };
+  }
+
+  function getClickData(event, metrics) {
+    const { scrollX, scrollY } = getScrollOffset();
+
+    if (typeof event.pageX !== 'number' || typeof event.pageY !== 'number') {
+      log('WARN: pageX/pageY missing, falling back to client+scroll', {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    const pageX = Math.round(
+      typeof event.pageX === 'number' ? event.pageX : event.clientX + scrollX
+    );
+    const pageY = Math.round(
+      typeof event.pageY === 'number' ? event.pageY : event.clientY + scrollY
+    );
+
+    const normalizedX = pageX / metrics.pageWidth;
+    const normalizedY = pageY / metrics.pageHeight;
+
+    const data = {
+      pageX,
+      pageY,
+      clickX: pageX,
+      clickY: pageY,
+      scrollX,
+      scrollY,
+      normalizedX,
+      normalizedY,
+    };
+
+    log('click-captured', {
+      pageX,
+      pageY,
+      scrollX,
+      scrollY,
+      pageWidth: metrics.pageWidth,
+      pageHeight: metrics.pageHeight,
+      viewportWidth: metrics.viewportWidth,
+      viewportHeight: metrics.viewportHeight,
+      normalizedX,
+      normalizedY,
+      verifyClientSum: {
+        x: event.clientX + scrollX,
+        y: event.clientY + scrollY,
+      },
+    });
+
+    return data;
   }
 
   function getSessionId() {
@@ -41,36 +118,49 @@
     return sessionId;
   }
 
-  function sendEvent(eventType, clickX, clickY) {
-    const payload = {
-      sessionId: getSessionId(),
-      eventType,
-      pageUrl: window.location.href,
-      timestamp: new Date().toISOString(),
-      ...getPageMetrics(),
-    };
-
-    if (eventType === 'click') {
-      payload.clickX = clickX;
-      payload.clickY = clickY;
-    }
+  function sendPayload(payload) {
+    log('posting', payload);
 
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       keepalive: true,
-    }).catch(function () {
-      // Silently ignore network errors so tracking never breaks the host page.
+    }).catch(function (err) {
+      log('post-error', { message: err?.message || 'network error' });
     });
   }
 
   function trackPageView() {
-    sendEvent('page_view');
+    const pageUrl = window.location.href;
+    const metrics = getPageMetrics();
+
+    log('page-view', metrics);
+
+    sendPayload({
+      sessionId: getSessionId(),
+      eventType: 'page_view',
+      pageUrl,
+      pageUrlNormalized: normalizePageUrl(pageUrl),
+      timestamp: new Date().toISOString(),
+      ...metrics,
+    });
   }
 
   function trackClick(event) {
-    sendEvent('click', event.pageX, event.pageY);
+    const metrics = getPageMetrics();
+    const pageUrl = window.location.href;
+    const clickData = getClickData(event, metrics);
+
+    sendPayload({
+      sessionId: getSessionId(),
+      eventType: 'click',
+      pageUrl,
+      pageUrlNormalized: normalizePageUrl(pageUrl),
+      timestamp: new Date().toISOString(),
+      ...metrics,
+      ...clickData,
+    });
   }
 
   function init() {

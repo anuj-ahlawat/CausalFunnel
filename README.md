@@ -116,7 +116,13 @@ Dashboard runs at `http://localhost:5173`.
 
 ### 3. Generate demo events
 
-Open `demo-site/index.html` in your browser (or serve it with any static file server). The page loads `tracker/tracker.js`, which sends `page_view` and `click` events to the backend.
+Serve the **project root** (not just `demo-site/`) so the tracker script is available:
+
+```bash
+npx serve .
+```
+
+Open `http://localhost:3000/demo-site/` and click around. The page loads `/tracker/tracker.js`, which sends `page_view` and `click` events to the backend.
 
 Refresh the dashboard to inspect sessions and heatmaps.
 
@@ -152,7 +158,27 @@ Store a tracking event.
 }
 ```
 
-For click events, include `clickX` and `clickY`.
+For click events, include document-relative `clickX`/`clickY` (from `pageX`/`pageY`), normalized `normalizedX`/`normalizedY`, `scrollX`/`scrollY`, and page/viewport dimensions.
+
+```json
+{
+  "sessionId": "uuid",
+  "eventType": "click",
+  "pageUrl": "http://localhost:3000/demo-site/",
+  "pageUrlNormalized": "http://localhost:3000/demo-site/",
+  "clickX": 420,
+  "clickY": 1580,
+  "normalizedX": 0.29,
+  "normalizedY": 0.49,
+  "scrollX": 0,
+  "scrollY": 1200,
+  "viewportWidth": 1440,
+  "viewportHeight": 900,
+  "pageWidth": 1440,
+  "pageHeight": 3200,
+  "timestamp": "2026-06-18T10:00:00.000Z"
+}
+```
 
 **Response**
 
@@ -197,28 +223,43 @@ Return all events for a session, ordered by timestamp ascending.
 
 ### `GET /api/heatmap?url=<page_url>`
 
-Return click coordinates for a specific page.
+Return click coordinates and canvas metadata for a page. URL hash fragments are ignored.
 
 **Response**
 
 ```json
-[
-  { "clickX": 200, "clickY": 150 },
-  { "clickX": 500, "clickY": 250 }
-]
+{
+  "renderedWidth": 1440,
+  "renderedHeight": 3200,
+  "previewUrl": "http://127.0.0.1:5500/demo-site/",
+  "clicks": [
+    {
+      "clickX": 420,
+      "clickY": 1580,
+      "normalizedX": 0.29,
+      "normalizedY": 0.49,
+      "scrollX": 0,
+      "scrollY": 1200,
+      "viewportWidth": 1440,
+      "viewportHeight": 900,
+      "pageWidth": 1440,
+      "pageHeight": 3200
+    }
+  ]
+}
 ```
 
 ---
 
 ### `GET /api/pages`
 
-Return distinct tracked page URLs.
+Return distinct tracked page URLs (hash fragments stripped).
 
 **Response**
 
 ```json
 [
-  "file:///path/to/demo-site/index.html"
+  "http://localhost:3000/"
 ]
 ```
 
@@ -226,11 +267,12 @@ Return distinct tracked page URLs.
 
 1. **Local development first** — tracker posts to `http://localhost:5001/api/events`; production would use environment-based endpoints. Port `5001` avoids conflicts with macOS AirPlay on port `5000`.
 2. **No authentication** — APIs are open for simplicity; a real product would add API keys and dashboard auth.
-3. **Heatmap visualization** — dots are normalized inside a canvas container rather than overlaid on a live page screenshot (screenshot capture would require additional infrastructure).
+3. **Heatmap visualization** — `normalizedX`/`normalizedY` are the source of truth. Markers render at `displayX = normalizedX × pageWidth` and `displayY = normalizedY × pageHeight` using the most common stored document dimensions, with CSS scale applied only for on-screen fit.
 4. **Fire-and-forget tracking** — tracker swallows network errors so host pages are never disrupted.
 5. **Session identity** — `sessionId` is stored in `localStorage` and persists across page reloads in the same browser.
-6. **Click coordinates** — uses `pageX` / `pageY` for document-relative positions.
-7. **Service layer separation** — controllers stay thin; aggregation and validation live in services for testability and reuse.
+6. **URL grouping** — hash fragments (`#section`) are stripped from `pageUrlNormalized` so anchor navigation does not split heatmap data.
+7. **Click coordinates** — `pageX`/`pageY` document positions normalized against `scrollWidth`/`scrollHeight` (not viewport size). Raw `clickX`/`clickY` kept for debugging.
+8. **Service layer separation** — controllers stay thin; aggregation and validation live in services for testability and reuse.
 
 ## Scripts
 

@@ -89,7 +89,8 @@ export default function DashboardLayout() {
           <div className="mt-8 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
             <p className="font-medium text-slate-800">Demo tip</p>
             <p className="mt-1">
-              Open <code className="rounded bg-white px-1 py-0.5 text-xs">demo-site/index.html</code>{' '}
+              Run <code className="rounded bg-white px-1 py-0.5 text-xs">npx serve .</code>{' '}
+              and open <code className="rounded bg-white px-1 py-0.5 text-xs">/demo-site/</code>{' '}
               to generate sample events.
             </p>
           </div>
