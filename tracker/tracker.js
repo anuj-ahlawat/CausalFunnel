@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const API_URL = 'http://localhost:5001/api/events';
+  const API_URL = 'https://causalfunnelbackend.onrender.com';
   const SESSION_STORAGE_KEY = 'analytics_session_id';
   const DEBUG = true;
 
