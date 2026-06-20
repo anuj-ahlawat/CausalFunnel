@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const API_URL = 'https://causalfunnelbackend.onrender.com';
+  const API_URL = 'https://causalfunnelbackend.onrender.com/api/events';
   const SESSION_STORAGE_KEY = 'analytics_session_id';
   const DEBUG = true;
 
@@ -11,7 +11,7 @@
     }
   }
 
-  
+
   function normalizePageUrl(url) {
     try {
       const parsed = new URL(url);
