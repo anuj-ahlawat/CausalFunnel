@@ -1,8 +1,3 @@
-/**
- * Coordinate math for the analytics pipeline.
- * pageX/pageY live in document space (scrollWidth × scrollHeight).
- */
-
 const MIN_VALID_DIMENSION = 100;
 
 function isValidDimension(value) {

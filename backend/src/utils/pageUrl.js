@@ -1,6 +1,3 @@
-/**
- * Strip URL hash fragments and normalize trailing slashes for consistent grouping.
- */
 function normalizePageUrl(url) {
   if (!url || typeof url !== 'string') {
     return '';
