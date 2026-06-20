@@ -11,6 +11,7 @@
     }
   }
 
+  
   function normalizePageUrl(url) {
     try {
       const parsed = new URL(url);
