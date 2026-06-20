@@ -10,8 +10,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve tracker.js from backend/public
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
